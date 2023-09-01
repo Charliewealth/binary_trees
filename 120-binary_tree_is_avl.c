@@ -1,92 +1,65 @@
-
 #include "binary_trees.h"
 
 /**
- * binary_tree_height - measures the height of a binary tree.
- * @tree: pointer to the root node of the tree to measure the height.
+ * binary_tree_is_avl - finds if a binary tree is an avl
+ * @tree: pointer to the root node of the tree
  *
- * Return: height of the tree.
- */
-size_t binary_tree_height(const binary_tree_t *tree)
-{
-	size_t left_height = 0;
-	size_t right_height = 0;
-
-	/* If the tree is empty, return 0. */
-	if (!tree)
-		return (0);
-	/*
-	* Calculate the height of left and right subtrees and take the maximum
-	* of two heights.
-	* Add 1 to the maximum height and return.
-	*/
-	if (tree->left)
-		left_height = 1 + binary_tree_height(tree->left);
-	if (tree->right)
-		right_height = 1 + binary_tree_height(tree->right);
-
-	if (left_height > right_height)
-		return (left_height);
-	else
-		return (right_height);
-}
-
-/**
- * binary_tree_balance - measures the balance factor of a binary tree.
- * @tree: pointer to the root node of the tree to measure the balance factor.
- *
- * Return: balance factor of the tree.
- */
-int binary_tree_balance(const binary_tree_t *tree)
-{
-	int left_height = 0;
-	int right_height = 0;
-
-	/* If the tree is empty, return 0. */
-	if (!tree)
-		return (0);
-
-	/* Calculate the height of the left and right subtrees. */
-	if (tree->left)
-		left_height = 1 + binary_tree_height(tree->left);
-	if (tree->right)
-		right_height = 1 + binary_tree_height(tree->right);
-
-	/* Return the difference between the left and right subtrees. */
-	return (left_height - right_height);
-}
-
-/**
- * binary_tree_is_avl - checks if a binary tree is a valid AVL Tree.
- * @tree: pointer to the root node of the tree to check.
- *
- * Return: 1 if tree is a valid AVL Tree, and 0 otherwise.
+ * Return: 1 if tree is avl
+ *         0 otherwise
  */
 int binary_tree_is_avl(const binary_tree_t *tree)
 {
-	int balance = 0;
-
-	/* If the tree is empty, return 0. */
 	if (!tree)
 		return (0);
 
-	/* Check if the tree is balanced. */
-	balance = binary_tree_balance(tree);
-	if (balance > 1 || balance < -1)
-		return (0);
-
-	/* If the tree is balanced, check if the left subtree is balanced. */
-	if (tree->left)
-		if (!binary_tree_is_avl(tree->left))
-			return (0);
-
-	/* If the left subtree is balanced, check if the right subtree is balanced. */
-	if (tree->right)
-		if (!binary_tree_is_avl(tree->right))
-			return (0);
-
-	/* If the right subtree is balanced, return 1. */
-	return (1);
+	return (btia_helper(tree, INT_MIN, INT_MAX));
 }
 
-/* CODE DOESN'T PASS ALL CHECKS
+/**
+ * btia_helper - helper that finds if a binary tree is an avl
+ * @tree: pointer to the root node of the tree
+ * @min: minimum value
+ * @max: maximum value
+ *
+ * Return: 1 if tree is avl
+ *         0 otherwise
+ */
+int btia_helper(const binary_tree_t *tree, int min, int max)
+{
+	int path_l, path_r;
+
+	if (!tree)
+		return (1);
+	if (tree->n < min || tree->n > max)
+		return (0);
+
+	path_l = tree->left ? 1 + binary_tree_height(tree->left) : 0;
+	path_r = tree->right ? 1 + binary_tree_height(tree->right) : 0;
+
+	if (abs(path_l - path_r) > 1)
+		return (0);
+
+	return (btia_helper(tree->left, min, tree->n - 1) &&
+		btia_helper(tree->right, tree->n + 1, max));
+	/* This is part of the BST check logic */
+}
+
+/**
+ * binary_tree_height - measures the height of a binary tree
+ * @tree: tree to measure the height of
+ *
+ * Return: height of the tree
+ *         0 if tree is NULL
+ */
+size_t binary_tree_height(const binary_tree_t *tree)
+{
+	size_t height_l = 0;
+	size_t height_r = 0;
+
+	if (!tree)
+		return (0);
+
+	height_l = tree->left ? 1 + binary_tree_height(tree->left) : 0;
+	height_r = tree->right ? 1 + binary_tree_height(tree->right) : 0;
+	return (height_l > height_r ? height_l : height_r);
+}
